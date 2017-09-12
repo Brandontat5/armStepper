@@ -1,40 +1,85 @@
 #include "SpeedyStepper.h"
+#include "RCServo.h"
 
 SpeedyStepper armStepper;
+RCServo EMagnet;
 
 int microStepping = 8;
-float armAccel = 3;
-float armSpeed = .5;
+float armAccel = 2;
+float armSpeed = 10;
 int steps = 200;
 int transmissionRatio = 2;
 
 float maxDistance = 1.0;
-int HOME_LIMIT_SWITCH_PIN = A1;
 
+const byte ARM_STEPPER_PIN = 2;
+const byte HOME_SENSOR_PIN = A1;
+const byte TOP_SENSOR_PIN = A2;
+const byte BOTTOM_SENSOR_PIN = A3;
+const byte EMAGNET_PIN = A4;
+const byte PISTON_PIN = 10;
 
 void setup() {
-  // put your setup code here, to run once:
-  // pinMode(HOME_LIMIT_SWITCH_PIN, INPUT_PULLUP);
-  armStepper.connectToPort(1);
+  pinMode(HOME_SENSOR_PIN, INPUT_PULLUP);
+  pinMode(TOP_SENSOR_PIN, INPUT_PULLUP);
+  pinMode(BOTTOM_SENSOR_PIN, INPUT_PULLUP);
+  pinMode(PISTON_PIN, OUTPUT);
+
+
+
+  armStepper.connectToPort(ARM_STEPPER_PIN);
+  EMagnet.connectToPin(EMAGNET_PIN);
+
+
+
   armStepper.setAccelerationInRevolutionsPerSecondPerSecond(armAccel);
   armStepper.setStepsPerRevolution(transmissionRatio * microStepping * steps);
   armStepper.setSpeedInRevolutionsPerSecond(armSpeed);
-
-  armStepper.moveToHomeInRevolutions(1, armSpeed, maxDistance, HOME_LIMIT_SWITCH_PIN);
-
-  delay(1000);
-
-  armStepper.moveToPositionInRevolutions(-.74);
-
-  delay(1000);
-
-  armStepper.moveRelativeInRevolutions(.16);
-
-
-
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  goHome();
+  goToTopTower();
+  turnOnEMagnet();
+  armGoDown();
+  delay(1000);
+  armGoUp();
+  delay(2000);
+  GoToBottomPad();
+  armGoDown();
+  delay(2000);
+  turnOffEmagnet();
+  armGoUp();
+  delay(2000);
 }
+
+void goHome() {
+  armStepper.moveToHomeInRevolutions(-1, armSpeed, maxDistance, HOME_SENSOR_PIN);
+}
+
+void goToTopTower() {
+  armStepper.moveToPositionInRevolutions(.255);
+}
+
+void turnOnEMagnet() {
+  EMagnet.setServoPosition(1.0);
+}
+
+void turnOffEmagnet() {
+  EMagnet.setServoPosition(0.0);
+}
+
+void armGoUp() {
+  digitalWrite(PISTON_PIN, LOW);
+}
+
+void armGoDown() {
+  digitalWrite(PISTON_PIN, HIGH);
+}
+
+void GoToBottomPad() {
+  armStepper.moveToPositionInRevolutions(.42);
+}
+
+
+
