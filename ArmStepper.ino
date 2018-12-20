@@ -1,18 +1,17 @@
 #include "SpeedyStepper.h"
 #include "RCServo.h"
 
-SpeedyStepper armStepper;
+SpeedyStepper armStepper; // init objects from libs
 RCServo EMagnet;
 
-int microStepping = 8;
+int microStepping = 8;  // settings values
 float armAccel = 2;
 float armSpeed = 10;
 int steps = 200;
 int transmissionRatio = 2;
-
 float maxDistance = 1.0;
 
-const byte ARM_STEPPER_PIN = 2;
+const byte ARM_STEPPER_PIN = 2; // assigning sensors and pins to vars
 const byte HOME_SENSOR_PIN = A1;
 const byte TOP_SENSOR_PIN = A2;
 const byte BOTTOM_SENSOR_PIN = A3;
@@ -20,19 +19,15 @@ const byte EMAGNET_PIN = A4;
 const byte PISTON_PIN = 10;
 
 void setup() {
-  pinMode(HOME_SENSOR_PIN, INPUT_PULLUP);
+  pinMode(HOME_SENSOR_PIN, INPUT_PULLUP); // init sensors to be inputs
   pinMode(TOP_SENSOR_PIN, INPUT_PULLUP);
   pinMode(BOTTOM_SENSOR_PIN, INPUT_PULLUP);
   pinMode(PISTON_PIN, OUTPUT);
 
-
-
-  armStepper.connectToPort(ARM_STEPPER_PIN);
+  armStepper.connectToPort(ARM_STEPPER_PIN); // init stepper and electromagnet
   EMagnet.connectToPin(EMAGNET_PIN);
 
-
-
-  armStepper.setAccelerationInRevolutionsPerSecondPerSecond(armAccel);
+  armStepper.setAccelerationInRevolutionsPerSecondPerSecond(armAccel); //init the speed and accel
   armStepper.setStepsPerRevolution(transmissionRatio * microStepping * steps);
   armStepper.setSpeedInRevolutionsPerSecond(armSpeed);
 }
@@ -80,6 +75,3 @@ void armGoDown() {
 void GoToBottomPad() {
   armStepper.moveToPositionInRevolutions(.42);
 }
-
-
-
